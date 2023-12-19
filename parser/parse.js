@@ -7,6 +7,6 @@ await collect({
     rel_contentdir:"../markdown",
     content_ext:["md","json","yml","yaml"],
     assets_ext:["svg","webp","png","jpeg","jpg","xlsx","glb"],
-    rel_outdir:"../.structure",
+    rel_outdir:"../.data",
     debug:true
 })

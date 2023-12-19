@@ -1,5 +1,3 @@
-import os
-import typesense_utils as tyutl
 from utils import load_json, save_json, duration_text
 import time
 
@@ -69,10 +67,10 @@ def get_paragraphs(content):
 def get_pages_elements():
     start = time.time()
     pages_elements = []
-    docs_list = load_json("../.structure/document_list.json")
+    docs_list = load_json("../.data/document_list.json")
     for doc in docs_list:
         if(doc["format"].startswith("markdown")):
-            content = load_json(f"../.structure/documents/{doc['sid']}/content.json")
+            content = load_json(f"../.data/documents/{doc['sid']}/content.json")
             pages_elements.extend(get_headings(content))
             pages_elements.extend(get_tables(content))
             pages_elements.extend(get_images(content))
@@ -83,24 +81,7 @@ def get_pages_elements():
     return pages_elements
 
 def main():
-    if(tyutl.collection_exists("pages_elements")):
-        tyutl.collection_delete("pages_elements")
-
-    print("* creating new 'paegs' collection")
-    schema_fields = load_json("schema_fields.json")
-    schema = {
-        "name": "pages_elements",
-        "fields": schema_fields
-    }
-    tyutl.create_collection(schema)
-
-    tyutl.collections_list()
-
-    if os.path.exists("pages_elements.json"):
-        pages_elements = load_json("pages_elements.json")
-    else:
-        pages_elements = get_pages_elements()
-        save_json("pages_elements.json",pages_elements)
-    tyutl.create_documents("pages_elements",pages_elements)
+    pages_elements = get_pages_elements()
+    save_json("../.data/pages_elements.json",pages_elements)
 
 main()
