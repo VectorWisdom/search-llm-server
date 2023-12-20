@@ -68,27 +68,26 @@ def split_chunk_text(text, max_length, overlap):
 
     while start < len(text):
         end = min(start + max_length, len(text))
-        non_overlap_end = end
+        chunk_end = end
 
         if end < len(text):
             # Extend the chunk to include overlap, ensuring not to exceed text length
             overlap_end = min(end + overlap, len(text))
-            chunk_end = text.rfind(' ', end, overlap_end)
-            if chunk_end == -1 or chunk_end - start > max_length:
-                # No space found in overlap range, or chunk too large, so use hard limit
-                chunk_end = end
-            else:
-                # Update non_overlap_end to the end of the chunk without overlap
-                non_overlap_end = chunk_end
-        else:
-            chunk_end = end
+            chunk_end = overlap_end
 
+        # Append the chunk
         chunks.append(text[start:chunk_end])
-        # Ensure the non_overlapping_texts segment doesn't include the overlap
+
+        # Calculate non-overlapping text end
+        # It should end where the next chunk will start
+        non_overlap_end = min(start + max_length, len(text))
+
+        # Append the non-overlapping text
         non_overlapping_texts.append(text[non_overlap_start:non_overlap_end])
 
-        start = chunk_end
-        non_overlap_start = start  # Start the next segment right where the previous chunk ended
+        # Update the start for the next iteration
+        start = non_overlap_end
+        non_overlap_start = start
 
     combined_list = [{"chunk": chunk, "text": non_overlap_text} for chunk, non_overlap_text in zip(chunks, non_overlapping_texts)]
     return combined_list
