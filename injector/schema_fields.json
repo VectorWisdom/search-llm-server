@@ -1,7 +1,8 @@
 [
   {"name": "doc_sid","type": "string"},
-  {"name": "doc_type","type": "string"},
+  {"name": "doc_path","type": "string"},
   {"name": "heading","type": "string"},
-  {"name": "element_type","type": "string"},
-  {"name": "element_value","type": "string"}
+  {"name": "type","type": "string"},
+  {"name": "text","type": "string"},
+  {"name": "sid","type": "string", "optional": true}
 ]

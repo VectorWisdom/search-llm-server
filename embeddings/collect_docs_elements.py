@@ -6,62 +6,72 @@ def get_headings(content):
     for heading in content["headings"]:
         elements.append({
             "doc_sid":content["sid"],
-            "doc_type":"page",
+            "doc_path":content["path"],
             "heading":heading["slug"],
-            "element_type":"heading",
-            "element_value":heading["label"]
+            "type":"heading",
+            "text":heading["label"]
         })
     return elements
 
 def get_tables(content):
     elements = []
     for table in content["tables"]:
-        for cell in table:
-            elements.append({
-                "doc_sid":content["sid"],
-                "doc_type":"page",
-                "heading":table["heading"],
-                "element_type":"table",
-                "element_value":cell
-            })
+        elements.append({
+            "doc_sid":content["sid"],
+            "doc_path":content["path"],
+            "heading":table["heading"],
+            "type":"table",
+            "text":table["text"],
+            "sid": table["sid"]
+        })
     return elements
 
 def get_images(content):
     elements = []
     for image in content["images"]:
-        for text in image["text"]:
+        if(len(image["text_list"]) > 0):
+            text = ' '.join(image["text_list"])
+            meta = "url="+image["url"] + " "
+            if(image["title"] is not None):
+                meta += "title="+image["title"] + " "
+            if(image["alt"] is not None):
+                meta += "alt="+image["alt"] + " "
             elements.append({
                 "doc_sid":content["sid"],
-                "doc_type":"page",
+                "doc_path":content["path"],
                 "heading":image["heading"],
-                "element_type":"diagram",
-                "element_value":text
+                "type":"diagram",
+                "text":text,
+                "meta":meta,
+                "sid": image["sid"]
             })
     return elements
 
 def get_codes(content):
     elements = []
     for code in content["code"]:
+        meta = "language="+code["language"]
         elements.append({
             "doc_sid":content["sid"],
-            "doc_type":"page",
+            "doc_path":content["path"],
             "heading":code["heading"],
-            "element_type":"code",
-            "element_value":code["value"]
+            "type":"code",
+            "text":code["text"],
+            "meta":meta,
+            "sid": code["sid"]
         })
     return elements
 
 def get_paragraphs(content):
     elements = []
     for paragraph in content["paragraphs"]:
-        for text in paragraph["text"]:
-            elements.append({
-                "doc_sid":content["sid"],
-                "doc_type":"page",
-                "heading":paragraph["heading"],
-                "element_type":"paragraph",
-                "element_value":text
-            })
+        elements.append({
+            "doc_sid":content["sid"],
+            "doc_path":content["path"],
+            "heading":paragraph["heading"],
+            "type":"paragraph",
+            "text":paragraph["text"]
+        })
     return elements
 
 def get_pages_elements():
@@ -76,12 +86,15 @@ def get_pages_elements():
             pages_elements.extend(get_images(content))
             pages_elements.extend(get_codes(content))
             pages_elements.extend(get_paragraphs(content))
+
+    # filter out empty entries
+    pages_elements = [el for el in pages_elements if((len(el["text"])>0))]
     duration = time.time() - start
     print(f"collected pages elements in {duration_text(duration)}")
     return pages_elements
 
 def main():
     pages_elements = get_pages_elements()
-    save_json("../.data/pages_elements.json",pages_elements)
+    save_json("../.data/elements.json",pages_elements)
 
 main()

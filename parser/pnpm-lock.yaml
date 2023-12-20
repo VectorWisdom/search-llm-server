@@ -6,8 +6,8 @@ settings:
 
 dependencies:
   content-structure:
-    specifier: 0.9.1
-    version: 0.9.1
+    specifier: 1.0.2
+    version: 1.0.2
 
 packages:
 
@@ -161,8 +161,8 @@ packages:
       delayed-stream: 1.0.0
     dev: false
 
-  /content-structure@0.9.1:
-    resolution: {integrity: sha512-qr1vbrepLgbUfME6M36sdBzQ9uwx29LLbx1zSr4W7puuIW3garSBQR6Byw4EGz8CR3G8x3XPdKNLYc1/Nbimow==}
+  /content-structure@1.0.2:
+    resolution: {integrity: sha512-irzwZiALZr7gQM5aiHkcECgf5QTz93JeHcNdUeXI07szfvAmDjOR1PUMfqIH17shKi/ueESu/Zbdftk8+DDVZQ==}
     dependencies:
       glob: 10.3.10
       gray-matter: 4.0.3
