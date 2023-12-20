@@ -14,8 +14,8 @@ def main():
         results = utl.split_chunk_text(el["text"],1000,200)
         for index,result in enumerate(results,1):
             el_part = deepcopy(el)
-            el_part["tl"] = len(result["text"])
-            el_part["cl"] = len(result["chunk"])
+            el_part["text_len"] = len(result["text"])
+            el_part["chunk_len"] = len(result["chunk"])
             el_part["text"] = result["text"]
             payload = ""
             if(el["heading"] is not None):

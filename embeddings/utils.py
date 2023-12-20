@@ -59,6 +59,7 @@ def split_chunk_text(text, max_length, overlap):
     """
     Splits a text into two sets of data:
     1. Chunks: Each with a maximum length of max_length, overlapping with the next by 'overlap' characters.
+       Chunks avoid splitting words unless it requires dropping more than 20 characters.
     2. Non-overlapping Texts: Corresponding segments of the chunks without any redundancy.
     """
     chunks = []
@@ -73,7 +74,14 @@ def split_chunk_text(text, max_length, overlap):
         if end < len(text):
             # Extend the chunk to include overlap, ensuring not to exceed text length
             overlap_end = min(end + overlap, len(text))
-            chunk_end = overlap_end
+            proposed_end = text.rfind(' ', end, overlap_end)
+
+            if (proposed_end != -1) and ((overlap_end - proposed_end) <= 40):
+                # If a space is found within a reasonable range, use it to avoid splitting a word
+                chunk_end = proposed_end
+            else:
+                # No suitable space found or the chunk would be too short, so use the hard limit
+                chunk_end = overlap_end
 
         # Append the chunk
         chunks.append(text[start:chunk_end])
