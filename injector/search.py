@@ -6,4 +6,4 @@ results = tyutl.search("pages_elements",{
   'query_by': 'element_value'
 })
 
-save_json("results.json",results)
+save_json(results,"results.json")

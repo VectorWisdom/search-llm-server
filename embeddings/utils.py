@@ -1,5 +1,8 @@
 import json
 import hashlib
+import pickle
+from os.path import exists
+import time
 
 def short_md5(text):
     hash_obj = hashlib.md5(text.encode('utf-8'))
@@ -9,12 +12,22 @@ def short_md5(text):
 def load_json(fileName):
     return json.load(open(fileName,encoding='utf-8'))
 
-def save_json(fileName,data):
+def save_json(data,fileName):
     jfile = open(fileName, "w")
     jfile.write(json.dumps(data, indent=4))
     jfile.close()
     print(f"{len(data)} entries saved in {fileName}")
     return
+
+def save_pickle(data,fileName):
+    with open(fileName, 'wb') as file:
+        pickle.dump(data, file)
+    return
+
+def load_pickle(fileName):
+    with open(fileName, 'rb') as file:
+        data = pickle.load(file)
+    return data
 
 def duration_text(duration):
     duration = abs(duration)
@@ -99,3 +112,16 @@ def split_chunk_text(text, max_length, overlap):
 
     combined_list = [{"chunk": chunk, "text": non_overlap_text} for chunk, non_overlap_text in zip(chunks, non_overlapping_texts)]
     return combined_list
+
+def get_vectors_cache(cache_file,model):
+    embeddings = {}
+    if(exists(cache_file)):
+        start = time.time()
+        embeddings = load_pickle(cache_file)
+        duration = time.time() - start
+        print(f"loaded cache file '{cache_file}' in {duration_text(duration)}")
+        if(model in embeddings):
+            print(f" model '{model}' exists with {len(embeddings[model])} entries")
+        else:
+            embeddings[model] = {}
+    return embeddings

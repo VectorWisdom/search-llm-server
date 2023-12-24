@@ -3,7 +3,7 @@ import json
 def load_json(fileName):
     return json.load(open(fileName,encoding='utf-8'))
 
-def save_json(fileName,data):
+def save_json(data,fileName):
     jfile = open(fileName, "w")
     jfile.write(json.dumps(data, indent=4))
     jfile.close()

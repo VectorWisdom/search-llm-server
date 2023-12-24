@@ -28,7 +28,7 @@ def main():
             if(len(results)>1):
                 el_part["part"] = index
             elements_embeddings.append(el_part)
-    utl.save_json("../.data/embedding_chunks.json",elements_embeddings)
+    utl.save_json(elements_embeddings,"../.data/embedding_chunks.json")
     return
 
 main()

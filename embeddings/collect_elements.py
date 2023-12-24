@@ -95,6 +95,6 @@ def get_pages_elements():
 
 def main():
     pages_elements = get_pages_elements()
-    save_json("../.data/document_elements.json",pages_elements)
+    save_json(pages_elements,"../.data/document_elements.json")
 
 main()
