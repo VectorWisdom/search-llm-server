@@ -3,13 +3,12 @@ import tiktoken
 from copy import deepcopy
 
 def main():
-    elements = utl.load_json("../.data/elements.json")
+    elements = utl.load_json("../.data/document_elements.json")
     encoding = tiktoken.encoding_for_model("text-embedding-ada-002")
     elements_embeddings = []
     for el in elements:
         #headings are irrelevant for semantic search and question answering
         if (el["type"] not in ["paragraph", "diagram", "code", "table"]):
-            elements_embeddings.append(el)
             continue
         results = utl.split_chunk_text(el["text"],1000,200)
         for index,result in enumerate(results,1):
@@ -29,7 +28,7 @@ def main():
             if(len(results)>1):
                 el_part["part"] = index
             elements_embeddings.append(el_part)
-    utl.save_json("../.data/elements_embeddings.json",elements_embeddings)
+    utl.save_json("../.data/embedding_chunks.json",elements_embeddings)
     return
 
 main()
