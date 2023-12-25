@@ -3,6 +3,7 @@ import hashlib
 import pickle
 from os.path import exists
 import time
+import openai_utils as outl
 
 def short_md5(text):
     hash_obj = hashlib.md5(text.encode('utf-8'))
@@ -125,3 +126,42 @@ def get_vectors_cache(cache_file,model):
         else:
             embeddings[model] = {}
     return embeddings
+
+def get_embeddings(long_chunk_list, cache_file, model):
+    def fetch_chunk_list(chunk_list):
+        chunk_payloads = [chunk["payload"] for chunk in chunk_list]
+        start = time.time()
+        if(model == "text-embedding-ada-002"):
+            chunk_embeddings = outl.get_embedding_list(chunk_payloads,model=model)
+        else:
+            print(f"model {model} not supported")
+            exit(0)
+        print(f"fetched {len(chunk_embeddings)} embedding in {duration_text(time.time()-start)}")
+        for index, embedding in enumerate(chunk_embeddings):
+            hash = chunk_list[index]["hash"]
+            vectors[hash] = embedding
+        return
+
+    def fetch_big_chunk_list(big_chunk_list,list_size):
+        list_of_lists =[]
+        for i in range(0, len(big_chunk_list), list_size):
+            chunk_list = big_chunk_list[i:i+list_size]
+            list_of_lists.append(chunk_list)
+        for chunk_list in list_of_lists:
+            fetch_chunk_list(chunk_list)
+        return
+
+    print("generate_embeddings start")
+    embeddings = get_vectors_cache(cache_file, model)
+    vectors = embeddings[model]
+
+    filtered_chunks = []
+    for chunk in long_chunk_list:
+        if(not chunk["hash"] in vectors):
+            filtered_chunks.append(chunk)
+    if(len(filtered_chunks) ==0):
+        return vectors
+    fetch_big_chunk_list(filtered_chunks,200)
+    embeddings[model] = vectors
+    save_pickle(embeddings,cache_file)
+    return vectors
