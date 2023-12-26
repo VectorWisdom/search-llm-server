@@ -1,10 +1,11 @@
 import utils as utl
 
-print("embed_openai start")
-elements_embeddings = utl.load_json("../.data/embedding_chunks.json")
+chunk_list_file = "../.data/embedding_chunks.json"
 cache_file="../.data/vectors.pkl"
-model="text-embedding-ada-002"
+# 'text-embedding-ada-002', 'all-MiniLM-L6-v2'
+model="all-MiniLM-L6-v2"
 
-vectors = utl.get_embeddings(elements_embeddings,cache_file,model)
-
+print(f"embed {model} start")
+chunk_list = utl.load_json(chunk_list_file)
+vectors = utl.get_embeddings(chunk_list,cache_file,model,batch_size=200)
 print(f" get_embeddings() returned {len(vectors)} vectors")

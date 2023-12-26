@@ -4,6 +4,7 @@ from dotenv import load_dotenv
 
 
 def get_embedding(text,model="text-embedding-ada-002"):
+    check_client()
     response = client.embeddings.create(
     model=model,
     input=text,
@@ -11,11 +12,12 @@ def get_embedding(text,model="text-embedding-ada-002"):
     )
     return response.data[0].embedding
 
-def get_embedding_list(text_list,model="text-embedding-ada-002"):
+def get_embedding_list(text_list,model_name="text-embedding-ada-002"):
+    check_client()
     if(len(text_list) == 0):
         return []
     response = client.embeddings.create(
-    model=model,
+    model=model_name,
     input=text_list,
     encoding_format="float"
     )
@@ -23,6 +25,7 @@ def get_embedding_list(text_list,model="text-embedding-ada-002"):
     return embedding_list
 
 def test():
+    check_client()
     response = client.embeddings.create(
     model="text-embedding-ada-002",
     input="The food was delicious and the waiter...",
@@ -38,4 +41,9 @@ def create_client():
     client = OpenAI(api_key=os.getenv("OPENAI_API_KEY"))
     return client
 
-client = create_client()
+def check_client():
+    if(client == None):
+        client = create_client()
+    return
+
+client = None

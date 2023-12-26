@@ -1,0 +1,15 @@
+celeron J1900 x4 cores 2GHz
+
+embed all-MiniLM-L6-v2 start
+loaded cache file '../.data/vectors.pkl' in 362 ms 
+generating embeddings start
+ => 200 embeddings in 26 s 276 ms 
+ => 200 embeddings in 24 s 938 ms 
+ => 200 embeddings in 14 s 264 ms 
+ => 200 embeddings in 21 s 787 ms 
+ => 200 embeddings in 24 s 405 ms 
+ => 200 embeddings in 21 s 863 ms 
+ => 200 embeddings in 20 s 622 ms 
+ => 102 embeddings in 21 s 740 ms 
+ get_embeddings() returned 1363 vectors
+ 

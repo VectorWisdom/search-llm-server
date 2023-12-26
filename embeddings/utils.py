@@ -4,6 +4,7 @@ import pickle
 from os.path import exists
 import time
 import openai_utils as outl
+import sentence_utils as sutl
 
 def short_md5(text):
     hash_obj = hashlib.md5(text.encode('utf-8'))
@@ -121,47 +122,53 @@ def get_vectors_cache(cache_file,model):
         embeddings = load_pickle(cache_file)
         duration = time.time() - start
         print(f"loaded cache file '{cache_file}' in {duration_text(duration)}")
-        if(model in embeddings):
-            print(f" model '{model}' exists with {len(embeddings[model])} entries")
-        else:
-            embeddings[model] = {}
+    if(model in embeddings):
+        print(f" model '{model}' exists with {len(embeddings[model])} entries")
+    else:
+        embeddings[model] = {}
     return embeddings
 
-def get_embeddings(long_chunk_list, cache_file, model):
-    def fetch_chunk_list(chunk_list):
-        chunk_payloads = [chunk["payload"] for chunk in chunk_list]
-        start = time.time()
-        if(model == "text-embedding-ada-002"):
-            chunk_embeddings = outl.get_embedding_list(chunk_payloads,model=model)
-        else:
-            print(f"model {model} not supported")
-            exit(0)
-        print(f"fetched {len(chunk_embeddings)} embedding in {duration_text(time.time()-start)}")
-        for index, embedding in enumerate(chunk_embeddings):
-            hash = chunk_list[index]["hash"]
-            vectors[hash] = embedding
-        return
 
-    def fetch_big_chunk_list(big_chunk_list,list_size):
-        list_of_lists =[]
-        for i in range(0, len(big_chunk_list), list_size):
-            chunk_list = big_chunk_list[i:i+list_size]
-            list_of_lists.append(chunk_list)
-        for chunk_list in list_of_lists:
-            fetch_chunk_list(chunk_list)
-        return
+def fetch_chunk_list(chunk_list, vectors, model):
+    chunk_payloads = [chunk["payload"] for chunk in chunk_list]
+    start = time.time()
+    if(model == "text-embedding-ada-002"):
+        chunk_embeddings = outl.get_embedding_list(chunk_payloads,model_name=model)
+    elif(model == "all-MiniLM-L6-v2"):
+        chunk_embeddings = sutl.get_embedding_list(chunk_payloads,model_name=model)
+    else:
+        print(f"model {model} not supported")
+        exit(0)
+    print(f" => {len(chunk_embeddings)} embeddings in {duration_text(time.time()-start)}")
+    for index, embedding in enumerate(chunk_embeddings):
+        hash = chunk_list[index]["hash"]
+        vectors[hash] = embedding
+    return
 
-    print("generate_embeddings start")
+def get_embeddings(long_chunk_list, cache_file, model,batch_size=200,clear_cache = False):
+
     embeddings = get_vectors_cache(cache_file, model)
-    vectors = embeddings[model]
+    if(clear_cache):
+        vectors = {}
+    else:
+        vectors = embeddings[model]
 
     filtered_chunks = []
     for chunk in long_chunk_list:
         if(not chunk["hash"] in vectors):
             filtered_chunks.append(chunk)
     if(len(filtered_chunks) ==0):
+        print("all embeddings in cache")
         return vectors
-    fetch_big_chunk_list(filtered_chunks,200)
+
+    print("generating embeddings start")
+    list_of_lists =[]
+    for i in range(0, len(filtered_chunks), batch_size):
+        chunk_list = filtered_chunks[i:i+batch_size]
+        list_of_lists.append(chunk_list)
+    for chunk_list in list_of_lists:
+        fetch_chunk_list(chunk_list, vectors, model)
+
     embeddings[model] = vectors
     save_pickle(embeddings,cache_file)
     return vectors
