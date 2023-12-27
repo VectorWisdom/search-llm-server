@@ -128,7 +128,6 @@ def get_vectors_cache(cache_file,model):
         embeddings[model] = {}
     return embeddings
 
-
 def fetch_chunk_list(chunk_list, vectors, model):
     chunk_payloads = [chunk["payload"] for chunk in chunk_list]
     start = time.time()
@@ -172,3 +171,10 @@ def get_embeddings(long_chunk_list, cache_file, model,batch_size=200,clear_cache
     embeddings[model] = vectors
     save_pickle(embeddings,cache_file)
     return vectors
+
+
+def get_one_embedding(payload, model):
+    vectors = {}
+    chunk_list = [{"payload":payload,"hash":0}]
+    fetch_chunk_list(chunk_list, vectors, model)
+    return vectors[0]
