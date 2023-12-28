@@ -1,16 +1,21 @@
-import utils as utl
+import numpy as np
 
-chunk_list_file = "../.data/embedding_chunks.json"
-vectors_file="../.data/vectors.pkl"
-# 'text-embedding-ada-002', 'all-MiniLM-L6-v2'
-model="all-MiniLM-L6-v2"
+def search_similar_vectors(query, vectors, top_k=5):
+    np_vectors = np.array(list(vectors.values()))
+    np_query_vector = np.array(query).reshape(1, -1)
+    # np.dot() cosine_similarity() for unified vectors
+    similarities = [(hash_key, np.dot(np_query_vector, vec))
+                    for hash_key, vec in zip(vectors.keys(), np_vectors)]
+    similarities.sort(key=lambda x: x[1], reverse=True)
+    return similarities[:top_k]
 
-sentence = "A smart sensor with a modern wireless protocol, that can sense the environment without consuming much power"
+def compute_similarity_matrix(vectors):
+    keys = list(vectors.keys())
+    np_vectors = np.array(list(vectors.values()))
+    similarity_matrix = np.zeros((len(np_vectors), len(np_vectors)))
 
-print(f"embed {model} start")
-chunk_list = utl.load_json(chunk_list_file)
-vectors = utl.get_embeddings(chunk_list,vectors_file,model,batch_size=200)
-print(f" get_embeddings() returned {len(vectors)} vectors")
-
-target = utl.get_one_embedding(sentence,model)
-
+    for i, vec1 in enumerate(np_vectors):
+        for j, vec2 in enumerate(np_vectors):
+            similarity_matrix[i, j] = np.dot(vec1, vec2)
+    
+    return keys, similarity_matrix

@@ -42,6 +42,7 @@ def create_client():
     return client
 
 def check_client():
+    global client
     if(client == None):
         client = create_client()
     return
